@@ -74,38 +74,56 @@ Word Word :: operator^= (const Word & a) {
 Word Word :: operator += (const Word & a) {
     unsigned int sum;
     unsigned int mask;
-    unsigned int current, previous;
+    int current;
     int bit;
-    bool flipping = false;
-    int skip_flip = -1;
+    int carry; // -1 = unknown what bit carried to this location
+               //  0 = no bit was carried to this location
+               //  1 = 1 bit was carried to this location
 
+    carry = -1;
     sum = a.word + this->word;
     mask = 0x00000000;
     
     // first bit is a special case
+    // both first bits are set
     if ((a.mask & 0x00000001) && (this->mask & 0x00000001)) {
-        flipping = true;
+        if (((a.word & 0x00000001) == 1) && ((this->word & 0x00000001) == 1))
+            carry = 1;
+        else
+            carry = 0;
         mask = 0x00000001;
     }
+    // one first bit is set. we may at least know if we carry
+    else if ((a.mask & 0x00000001) && ((a.word & 0x00000001) == 0))
+        carry = 0;
+    else if ((this->mask & 0x00000001) && ((this->mask & 0x00000001) == 0))
+        carry = 0;
     
     // these are rules for when we have 0-0 or 1-1 to initiate flipping
     // bits
     for (bit = 1; bit < 32; bit++) {
-        // is mask set for both of these bits
+        // is mask is set for both of these bits
         if ((a.mask & (1 << bit)) && (this->mask & (1 << bit))) {
-            // are we already flipping
-            if (flipping)
+            // if we knew what carried here, then we know what the result will
+            // be
+            if (carry >= 0)
                 mask |= 1 << bit;
-            // we are not already flipping
+            // we always know from here what will carry to the next place
+            current = ((a.word >> bit) & 0x00000001) 
+                       + ((this->word >> bit) & 0x00000001);
+            if (carry >= 0) {
+                if (current + carry >= 2)
+                    carry = 1;
+                else
+                    carry = 0;
+            }
             else {
-                // this location is 0-0
-                if (((a.word & (1 << bit)) == 0x00000000)
-                    && ((this->word & (1 << bit)) == 0x00000000))
-                    flipping = true;
-                // this location is 1-1
-                else if ((a.word & (1 << bit))
-                         && (this->word & (1 << bit)))
-                    flipping = true;
+                if (current == 0)
+                    carry = 0;
+                else if (current == 2)
+                    carry = 1;
+                else
+                    carry = -1;
             }
         }
         // mask is set for one of the bits
@@ -114,47 +132,22 @@ Word Word :: operator += (const Word & a) {
                 current = (a.word     >> bit) & 0x00000001;
             else
                 current = (this->word >> bit) & 0x00000001;
-            // is mask set for both of the previous bits
-            if ((a.mask & (1 << (bit - 1))) && (this->mask & (1 << (bit - 1)))) {
-                previous =  (a.word     >> (bit - 1)) & 0x00000001;
-                previous += (this->word >> (bit - 1)) & 0x00000001;
-                // previous is 0-0 and current is 0, keep flipping
-                if ((previous == 0) && (current == 0)) {
-                    skip_flip = 0;
-                    flipping = true;
-                }
-                // previous is 1-1 and current is 1, keep flipping
-                else if ((previous == 2) && (current == 1)) {
-                    skip_flip = 1;
-                    flipping = true;
-                }
-                // otherwise, stop flipping
-                else
-                    flipping = false;
-            }
-            // is mask set for one of the previous bits
-            else if ((a.mask & (1 << (bit - 1))) || (this->mask & (1 << (bit - 1)))) {
-                if (a.mask & (1 << (bit - 1)))
-                    previous =  (a.word    >> (bit - 1)) & 0x00000001;
-                else
-                    previous = (this->word >> (bit - 1)) & 0x00000001;
-                // if previous = 0, current = 0, skip_flip = 0 and we are still 
-                // flipping, then we continue to flip
-                if (((previous | skip_flip | current) == 0) && (flipping))
-                    flipping = true;
-                // if previous = 1, current = 1, skip_flip = 1 and we are still
-                // flipping, then we continue to flip
-                else if (((previous & skip_flip & current) == 1) && (flipping))
-                    flipping = true;
-                else
-                    flipping = false;
-            }
+            // if we currently have a 1 and we carried a 1, we know we will
+            // carry a 1 from this location
+            if ((current == 1) && (carry == 1))
+                carry = 1;
+            // if we currently have a 0 and we carried a 0, we know we will not
+            // carry any bits from this location
+            else if ((current == 0) && (carry == 0))
+                carry = 0;
+            // otherwise we do not know if we will carry a bit from this
+            // location
             else
-                flipping = false;
+                carry = -1;
         }
         // mask is set for no bits
         else
-            flipping = false;
+            carry = -1;
     }
     
     this->word = sum;
