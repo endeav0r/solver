@@ -1,0 +1,28 @@
+Formatting:
+        Look at the formatting of what already exists. Do your best to mimic it. If
+    you're modifying an already existing file, you must stay consistent with
+    the formatting of that file. If you're creating your own file from scratch,
+    try to stay consistent with the formatting of the project.
+  
+  - Must keep formatting within files consistent
+  
+  - Try to keep formatting across project reasonably consistent
+  
+  - Identation: 4 spaces. No tabs. FOUR SPACES. This is a project-wide rule, not
+    a per-file rule.
+    
+  - If the code is logic-heavy, it needs comments.
+
+Miscellaneous:
+
+  - Makefile will remain -O3 with no debugging/profiling flags. You can have
+    whatever you please in your repo, but I won't pull a -O0 -g -pg Makefile.
+    
+  - This is obviously one application where speed is very important, AND when
+    we are ready to optimize we will. But, for now, clear and functional code
+    is ALWAYS more important than fast code.
+    
+  - It is always safer to use the overloaded operators for Word than to try and
+    deal with masks/words yourself. It also means that any improvements later on
+    will be reciprocated throughout the code. Use the overloaded operators
+    whenever possible.
