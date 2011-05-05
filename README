@@ -26,3 +26,6 @@ Miscellaneous:
     deal with masks/words yourself. It also means that any improvements later on
     will be reciprocated throughout the code. Use the overloaded operators
     whenever possible.
+  
+  - Commit as many changes as possible. It helps isolate each change to the
+    code and improves the review process.
