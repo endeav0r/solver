@@ -1,10 +1,9 @@
 #ifndef word_HEADER
 #define word_HEADER
 
-
+#include <list>
 #include <stdio.h>
 #include <string>
-using namespace std;
 
 
 #define word_rotl(x, s) (((x) << s) | ((x) >> (32 - s)))
@@ -14,7 +13,7 @@ using namespace std;
 class Word {
 
     private :
-        string name;
+        std::string name;
         bool lock_bool;
         unsigned int word;
         
@@ -23,8 +22,8 @@ class Word {
 
     public :
         Word ();
-        Word (string name);
-        Word (string name, unsigned int word);
+        Word (std::string name);
+        Word (std::string name, unsigned int word);
         Word (unsigned int word, unsigned int mask);
 
         void         s_word (unsigned int word);

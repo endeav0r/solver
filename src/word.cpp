@@ -9,7 +9,7 @@ Word :: Word (unsigned int word, unsigned int mask) {
 }
 
 
-Word :: Word (string name, unsigned int word) {
+Word :: Word (std::string name, unsigned int word) {
     this->name = name;
     this->word = word;
     this->lock_bool = false;
@@ -17,7 +17,7 @@ Word :: Word (string name, unsigned int word) {
 }
 
 
-Word :: Word (string name) {
+Word :: Word (std::string name) {
     this->name = name;
     this->word = 0x00000000;
     this->lock_bool = false;
@@ -262,10 +262,10 @@ void Word :: take_bits (Word a) {
 }
 
 
-string Word :: bit_string () {
+std::string Word :: bit_string () {
     char buf[9];
     int i;
-    string bit_string;
+    std::string bit_string;
     
     for (i = 31; i >= 0; i--) {
         if ((this->mask >> i) & 0x00000001) {
