@@ -8,6 +8,7 @@
 #include "or.hpp"
 #include "rotl.hpp"
 #include "not.hpp"
+#include "same.hpp"
 #include "xor.hpp"
 
 class Solver {

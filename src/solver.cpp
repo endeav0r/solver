@@ -72,6 +72,7 @@ void Solver :: md4F (Word * a, Word * b, Word * c, Word * d,
     And  * f_left_op    = new And (std::string("f_left_op____") + s.str());
     And  * f_right_op   = new And (std::string("f_right_op___") + s.str());
     Or   * f_op         = new Or  (std::string("f_op_________") + s.str());
+    Same * f_same       = new Same(std::string("f_same_______") + s.str());
     Add  * step_sum_op  = new Add (std::string("step_sum_op__") + s.str());
     Rotl * step_rotl_op = new Rotl(std::string("step_rotl_op_") + s.str());
     
@@ -81,13 +82,16 @@ void Solver :: md4F (Word * a, Word * b, Word * c, Word * d,
     Word * f        = new Word(std::string("f________") + s.str());
     Word * step_sum = new Word(std::string("step_sum_") + s.str());
     
+    // set results
     b_not_op->s_result(b_not);
     f_left_op->s_result(f_left);
     f_right_op->s_result(f_right);
     f_op->s_result(f);
+    f_same->s_result(f);
     step_sum_op->s_result(step_sum);
     step_rotl_op->s_result(r);
     
+    // set sources and operands
     step_rotl_op->s_source(step_sum);
     step_rotl_op->s_bits(bits);
     
@@ -102,9 +106,14 @@ void Solver :: md4F (Word * a, Word * b, Word * c, Word * d,
     f_op->add_operand(f_left);
     f_op->add_operand(f_right);
     
+    f_same->add_operand(c);
+    f_same->add_operand(d);
+    
     step_sum_op->add_operand(a);
     step_sum_op->add_operand(f);
     step_sum_op->add_operand(M);
+    
+    // add to lists
     
     this->op_words.push_back(b_not);
     this->op_words.push_back(f_left);
@@ -116,6 +125,7 @@ void Solver :: md4F (Word * a, Word * b, Word * c, Word * d,
     this->operations.push_back(f_left_op);
     this->operations.push_back(f_right_op);
     this->operations.push_back(f_op);
+    this->operations.push_back(f_same);
     this->operations.push_back(step_sum_op);
     this->operations.push_back(step_rotl_op);
 
@@ -230,11 +240,10 @@ bool Solver :: validate () {
         && (b[0]->g_word() == 0xefcdab89)
         && (c[0]->g_word() == 0x98badcfe)
         && (d[0]->g_word() == 0x10325476)
-        /*
         && (a[12]->g_word() == 0x00000000)
         && (b[12]->g_word() == 0x00000000)
         && (c[12]->g_word() == 0x00000000)
-        && (d[12]->g_word() == 0x00000000)*/
+        && (d[12]->g_word() == 0x00000000)
         && (GConstant->g_word() == 0x5a827999))
         return true;
     return false;
@@ -269,6 +278,7 @@ void Solver :: execute () {
             }
         }
     }
+    std::cout << debug_steps.str();
 }
 
 
@@ -325,7 +335,6 @@ void Solver :: output_state () {
 void Solver :: initialize_values () {
     int i;
     std::list <Word *> :: iterator it;
-    Word * w;
     
     for (it = this->op_words.begin(); it != this->op_words.end(); it++) {
         (*it)->s_mask(0x00000000);
@@ -344,20 +353,24 @@ void Solver :: initialize_values () {
     
     for (i = 0; i < 13; i++) {
         a[i]->s_mask(0x00000000);
+        d[i]->s_mask(0xffffffff);
+        c[i]->s_mask(0xffffffff);
         b[i]->s_mask(0x00000000);
-        c[i]->s_mask(0x00000000);
-        d[i]->s_mask(0x00000000);
-        a[i]->s_word(0x00000000);
+        a[i]->s_word(0xffffffff);
+        d[i]->s_word(0xffffffff);
+        c[i]->s_word(0xffffffff);
         b[i]->s_word(0x00000000);
-        c[i]->s_word(0x00000000);
-        d[i]->s_word(0x00000000);
     }
     
-    /*M[0]->s_word(0xdeadbeef);
-    M[1]->s_word(0xbeefdead);
-    M[2]->s_word(0xdaedfeeb);
-    M[3]->s_word(0xfeebdaed);
-    */
+    //M[0]->s_word(0xdeadbeef);
+    //M[1]->s_word(0xbeefdead);
+    //M[2]->s_word(0xdaedfeeb);
+    //M[3]->s_word(0xfeebdaed);
+    
+    //M[1]->s_mask(0xffffffff);
+    //M[1]->s_mask(0xffffffff);
+    //M[1]->s_mask(0xffffffff);
+    
     a[0]->s_word(0x67452301);
     b[0]->s_word(0xefcdab89);
     c[0]->s_word(0x98badcfe);
@@ -366,24 +379,6 @@ void Solver :: initialize_values () {
     b[0]->s_mask(0xffffffff);
     c[0]->s_mask(0xffffffff);
     d[0]->s_mask(0xffffffff);
-    
-    a[10]->s_word(0x00000000);
-    b[10]->s_word(0x00000000);
-    c[10]->s_word(0x00000000);
-    d[10]->s_word(0x00000000);
-    a[10]->s_mask(0xffffffff);
-    b[10]->s_mask(0xffffffff);
-    c[10]->s_mask(0xffffffff);
-    d[10]->s_mask(0xffffffff);
-    
-    a[11]->s_word(0x00000000);
-    b[11]->s_word(0x00000000);
-    c[11]->s_word(0x00000000);
-    d[11]->s_word(0x00000000);
-    a[11]->s_mask(0xffffffff);
-    b[11]->s_mask(0xffffffff);
-    c[11]->s_mask(0xffffffff);
-    d[11]->s_mask(0xffffffff);
     
     a[12]->s_word(0x00000000);
     b[12]->s_word(0x00000000);
@@ -394,10 +389,10 @@ void Solver :: initialize_values () {
     c[12]->s_mask(0xffffffff);
     d[12]->s_mask(0xffffffff);
     
-    M[14]->s_mask(0xffffffff);
-    M[6]->s_mask(0xffffffff);
-    M[10]->s_mask(0xffffffff);
-    M[2]->s_mask(0xffffffff);
+    //M[14]->s_mask(0xffffffff);
+    //M[6]->s_mask(0xffffffff);
+    //M[10]->s_mask(0xffffffff);
+    //M[2]->s_mask(0xffffffff);
     
     /*
     a[12]->s_word(0x00000000);
@@ -411,24 +406,6 @@ void Solver :: initialize_values () {
     b[12]->s_mask(0x00000000);
     c[12]->s_mask(0x00000000);
     d[12]->s_mask(0x00000000);
-    */
-    
-    /*
-    M[3]->s_mask(0xffffffff);
-    M[11]->s_mask(0xffffffff);
-    M[7]->s_mask(0xffffffff);
-    */
-    /*
-    M[6]->s_word(0xa920a4d3);
-    M[7]->s_word(0x7fc14f64);
-    
-    w = this->get_op_word("f________10");
-    w->s_word(0xffffffff);
-    w->s_mask(0xffffffff);
-    
-    w = this->get_op_word("f________11");
-    w->s_word(0xffffffff);
-    w->s_mask(0xffffffff);
     */
     
 }
@@ -561,7 +538,7 @@ void Solver :: solve () {
     int highest_bit_count = 0;
     int bc;
     int i;
-    for (i = 0; i < 2; i++) {
+    for (i = 0; i < 1; i++) {
         initialize_values();
         find_best_Ms();
         execute();
