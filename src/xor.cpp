@@ -19,12 +19,12 @@ bool Xor :: execute () {
     /**
     *** SOLVE FOR BITS IN R BASED OFF BITS IN BOTH A AND B
     **/
-
     it = this->operands.begin();
     tmp = **it;
+    it++;
     while (it != this->operands.end()) {
-        it++;
         tmp ^= **it;
+        it++;
     }
     mask = this->result->g_mask();
     this->result->take_bits(tmp);

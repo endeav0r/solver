@@ -34,6 +34,7 @@ class Solver {
                    Word * M, Word * r, int step, int bits);
                    
         Operation * get_operation (std::string name);
+        Word * get_op_word (std::string name);
         Word find_best_M (std::string operation_name, int M_index);
         void find_best_Ms ();
        
@@ -46,4 +47,6 @@ class Solver {
     public :
         Solver ();
         ~Solver ();
+        void solve ();
+        Solver operator=  (const Solver & a);
 };

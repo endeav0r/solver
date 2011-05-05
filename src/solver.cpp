@@ -29,6 +29,8 @@ Word Solver :: find_best_M (std::string operation_name, int M_index) {
 
 
 void Solver :: find_best_Ms () {
+
+    /*
     bool unset[16];
     int i;
     
@@ -37,7 +39,6 @@ void Solver :: find_best_Ms () {
         M[i]->s_mask(0xffffffff);
         unset[i] = false;
     }
-    /*
     i = 0;
     while (i < 4) {
         selection = rand() % 16;
@@ -48,10 +49,6 @@ void Solver :: find_best_Ms () {
         }
     }
     */
-    M[8]->s_mask(0x00000000);
-    M[9]->s_mask(0x00000000);
-    M[12]->s_mask(0x00000000);
-    M[13]->s_mask(0x00000000);
     /*
     M[ 4]->take_bits(find_best_M("step_sum_op__18", 4));
     M[ 8]->take_bits(find_best_M("step_sum_op__19", 8));
@@ -195,11 +192,11 @@ void Solver :: md4H (Word * a, Word * b, Word * c, Word * d,
     std::stringstream s;
     s << step;
     
-    Xor  * h_op         = new Xor (std::string("g_op_________") + s.str());
+    Xor  * h_op         = new Xor (std::string("h_op_________") + s.str());
     Add  * step_sum_op  = new Add (std::string("step_sum_op__") + s.str());
     Rotl * step_rotl_op = new Rotl(std::string("step_rotl_op_") + s.str());
     
-    Word * h        = new Word(std::string("g________") + s.str());
+    Word * h        = new Word(std::string("h________") + s.str());
     Word * step_sum = new Word(std::string("step_sum_") + s.str());
         
     h_op->s_result(h);
@@ -229,14 +226,15 @@ void Solver :: md4H (Word * a, Word * b, Word * c, Word * d,
 
 
 bool Solver :: validate () {
-    if (   (a[0]->g_word() == 0x01234567)
-        && (b[0]->g_word() == 0x89abcdef)
-        && (c[0]->g_word() == 0x76543210)
-        && (d[0]->g_word() == 0xfedcba98)
-        && (a[8]->g_word() == 0xAAAAAAAA)
-        && (b[8]->g_word() == 0xAAAAAAAA)
-        && (c[8]->g_word() == 0xAAAAAAAA)
-        && (d[8]->g_word() == 0xAAAAAAAA)
+    if (   (a[0]->g_word() == 0x67452301)
+        && (b[0]->g_word() == 0xefcdab89)
+        && (c[0]->g_word() == 0x98badcfe)
+        && (d[0]->g_word() == 0x10325476)
+        /*
+        && (a[12]->g_word() == 0x00000000)
+        && (b[12]->g_word() == 0x00000000)
+        && (c[12]->g_word() == 0x00000000)
+        && (d[12]->g_word() == 0x00000000)*/
         && (GConstant->g_word() == 0x5a827999))
         return true;
     return false;
@@ -327,6 +325,7 @@ void Solver :: output_state () {
 void Solver :: initialize_values () {
     int i;
     std::list <Word *> :: iterator it;
+    Word * w;
     
     for (it = this->op_words.begin(); it != this->op_words.end(); it++) {
         (*it)->s_mask(0x00000000);
@@ -340,18 +339,18 @@ void Solver :: initialize_values () {
     
     for (i = 0; i < 16; i++) {
         M[i]->s_word(0x00000000);
-        M[i]->s_mask(0xffffffff);
+        M[i]->s_mask(0x00000000);
     }
     
     for (i = 0; i < 13; i++) {
-        a[i]->s_word(0x00000000);
-        b[i]->s_word(0x00000000);
-        c[i]->s_word(0x00000000);
-        d[i]->s_word(0x00000000);
         a[i]->s_mask(0x00000000);
         b[i]->s_mask(0x00000000);
         c[i]->s_mask(0x00000000);
         d[i]->s_mask(0x00000000);
+        a[i]->s_word(0x00000000);
+        b[i]->s_word(0x00000000);
+        c[i]->s_word(0x00000000);
+        d[i]->s_word(0x00000000);
     }
     
     /*M[0]->s_word(0xdeadbeef);
@@ -359,30 +358,84 @@ void Solver :: initialize_values () {
     M[2]->s_word(0xdaedfeeb);
     M[3]->s_word(0xfeebdaed);
     */
-    a[0]->s_word(0x01234567);
-    b[0]->s_word(0x89abcdef);
-    c[0]->s_word(0x76543210);
-    d[0]->s_word(0xfedcba98);
+    a[0]->s_word(0x67452301);
+    b[0]->s_word(0xefcdab89);
+    c[0]->s_word(0x98badcfe);
+    d[0]->s_word(0x10325476);
     a[0]->s_mask(0xffffffff);
     b[0]->s_mask(0xffffffff);
     c[0]->s_mask(0xffffffff);
     d[0]->s_mask(0xffffffff);
     
-    a[8]->s_word(0xAAAAAAAA);
-    b[8]->s_word(0xAAAAAAAA);
-    c[8]->s_word(0xAAAAAAAA);
-    d[8]->s_word(0xAAAAAAAA);
-    a[8]->s_mask(0xffffffff);
-    b[8]->s_mask(0xffffffff);
-    c[8]->s_mask(0xffffffff);
-    d[8]->s_mask(0xffffffff);
+    a[10]->s_word(0x00000000);
+    b[10]->s_word(0x00000000);
+    c[10]->s_word(0x00000000);
+    d[10]->s_word(0x00000000);
+    a[10]->s_mask(0xffffffff);
+    b[10]->s_mask(0xffffffff);
+    c[10]->s_mask(0xffffffff);
+    d[10]->s_mask(0xffffffff);
+    
+    a[11]->s_word(0x00000000);
+    b[11]->s_word(0x00000000);
+    c[11]->s_word(0x00000000);
+    d[11]->s_word(0x00000000);
+    a[11]->s_mask(0xffffffff);
+    b[11]->s_mask(0xffffffff);
+    c[11]->s_mask(0xffffffff);
+    d[11]->s_mask(0xffffffff);
+    
+    a[12]->s_word(0x00000000);
+    b[12]->s_word(0x00000000);
+    c[12]->s_word(0x00000000);
+    d[12]->s_word(0x00000000);
+    a[12]->s_mask(0xffffffff);
+    b[12]->s_mask(0xffffffff);
+    c[12]->s_mask(0xffffffff);
+    d[12]->s_mask(0xffffffff);
+    
+    M[14]->s_mask(0xffffffff);
+    M[6]->s_mask(0xffffffff);
+    M[10]->s_mask(0xffffffff);
+    M[2]->s_mask(0xffffffff);
+    
+    /*
+    a[12]->s_word(0x00000000);
+    b[12]->s_word(0x00000000);
+    c[12]->s_word(0x00000000);
+    d[12]->s_word(0x00000000);
+    a[12]->s_mask(0x00000000);
+    //b[12]->s_mask(0xffffffff);
+    //c[12]->s_mask(0xffffffff);
+    //d[12]->s_mask(0xffffffff);
+    b[12]->s_mask(0x00000000);
+    c[12]->s_mask(0x00000000);
+    d[12]->s_mask(0x00000000);
+    */
+    
+    /*
+    M[3]->s_mask(0xffffffff);
+    M[11]->s_mask(0xffffffff);
+    M[7]->s_mask(0xffffffff);
+    */
+    /*
+    M[6]->s_word(0xa920a4d3);
+    M[7]->s_word(0x7fc14f64);
+    
+    w = this->get_op_word("f________10");
+    w->s_word(0xffffffff);
+    w->s_mask(0xffffffff);
+    
+    w = this->get_op_word("f________11");
+    w->s_word(0xffffffff);
+    w->s_mask(0xffffffff);
+    */
+    
 }
 
 Solver :: Solver () {
-    int i, j;
+    int i;
     std::stringstream s;
-    
-    srand(time(NULL));
     
     GConstant = new Word (0x5a827999, 0xffffffff);
     HConstant = new Word (0x6ed9eba1, 0xffffffff);
@@ -406,13 +459,29 @@ Solver :: Solver () {
         d[i] = new Word(s.str());
     }
     
-    for (i = 0; i < 4; i++) {
-        j = i * 4;
-        md4F(a[i], b[i  ], c[i  ], d[i  ], M[j  ], a[i+1], j+1, 3);
-        md4F(d[i], a[i+1], b[i  ], c[i  ], M[j+1], d[i+1], j+2, 7);
-        md4F(c[i], d[i+1], a[i+1], b[i  ], M[j+2], c[i+1], j+3, 11);
-        md4F(b[i], c[i+1], d[i+1], a[i+1], M[j+3], b[i+1], j+4, 19);
-    }
+    i = 0;
+    md4F(a[i], b[i  ], c[i  ], d[i  ], M[ 0], a[i+1], 1, 3);
+    md4F(d[i], a[i+1], b[i  ], c[i  ], M[ 1], d[i+1], 2, 7);
+    md4F(c[i], d[i+1], a[i+1], b[i  ], M[ 2], c[i+1], 3, 11);
+    md4F(b[i], c[i+1], d[i+1], a[i+1], M[ 3], b[i+1], 4, 19);
+    
+    i = 1;
+    md4F(a[i], b[i  ], c[i  ], d[i  ], M[ 4], a[i+1], 5, 3);
+    md4F(d[i], a[i+1], b[i  ], c[i  ], M[ 5], d[i+1], 6, 7);
+    md4F(c[i], d[i+1], a[i+1], b[i  ], M[ 6], c[i+1], 7, 11);
+    md4F(b[i], c[i+1], d[i+1], a[i+1], M[ 7], b[i+1], 8, 19);
+    
+    i = 2;
+    md4F(a[i], b[i  ], c[i  ], d[i  ], M[ 8], a[i+1], 9, 3);
+    md4F(d[i], a[i+1], b[i  ], c[i  ], M[ 9], d[i+1], 10, 7);
+    md4F(c[i], d[i+1], a[i+1], b[i  ], M[10], c[i+1], 11, 11);
+    md4F(b[i], c[i+1], d[i+1], a[i+1], M[11], b[i+1], 12, 19);
+    
+    i = 3;
+    md4F(a[i], b[i  ], c[i  ], d[i  ], M[12], a[i+1], 13, 3);
+    md4F(d[i], a[i+1], b[i  ], c[i  ], M[13], d[i+1], 14, 7);
+    md4F(c[i], d[i+1], a[i+1], b[i  ], M[14], c[i+1], 15, 11);
+    md4F(b[i], c[i+1], d[i+1], a[i+1], M[15], b[i+1], 16, 19);
     
     i = 4;
     md4G(a[4], b[4], c[4], d[4], M[ 0], a[5], 17, 3);
@@ -437,27 +506,30 @@ Solver :: Solver () {
     md4G(d[i], a[i+1], b[i  ], c[i  ], M[ 7], d[i+1], 30, 5);
     md4G(c[i], d[i+1], a[i+1], b[i  ], M[11], c[i+1], 31, 9);
     md4G(b[i], c[i+1], d[i+1], a[i+1], M[15], b[i+1], 32, 13);
-
-    int highest_bit_count = 0;
-    int bc;
-    for (int i = 0; i < 600000; i++) {
-        initialize_values();
-        find_best_Ms();
-        execute();
-        bc = 0;
-        for (j = 0; j < 16; j++) {
-            bc += M[j]->mask_count();
-        }
-        if (bc > 32 * 12) {
-            output_state();
-            std::cout << "FOUND M\n";
-        }
-        if (bit_count() > highest_bit_count) {
-            highest_bit_count = bit_count();
-            output_state();
-        }
-        std::cout.flush();
-    }
+    
+    i = 8;
+    md4H(a[i], b[i  ], c[i  ], d[i  ], M[ 0], a[i+1], 33, 3);
+    md4H(d[i], a[i+1], b[i  ], c[i  ], M[ 8], d[i+1], 34, 9);
+    md4H(c[i], d[i+1], a[i+1], b[i  ], M[ 4], c[i+1], 35, 11);
+    md4H(b[i], c[i+1], d[i+1], a[i+1], M[12], b[i+1], 36, 15);
+    
+    i = 9;
+    md4H(a[i], b[i  ], c[i  ], d[i  ], M[ 2], a[i+1], 37, 3);
+    md4H(d[i], a[i+1], b[i  ], c[i  ], M[10], d[i+1], 38, 9);
+    md4H(c[i], d[i+1], a[i+1], b[i  ], M[ 6], c[i+1], 39, 11);
+    md4H(b[i], c[i+1], d[i+1], a[i+1], M[14], b[i+1], 40, 15);
+    
+    i = 10;
+    md4H(a[i], b[i  ], c[i  ], d[i  ], M[ 1], a[i+1], 41, 3);
+    md4H(d[i], a[i+1], b[i  ], c[i  ], M[ 9], d[i+1], 42, 9);
+    md4H(c[i], d[i+1], a[i+1], b[i  ], M[ 5], c[i+1], 43, 11);
+    md4H(b[i], c[i+1], d[i+1], a[i+1], M[13], b[i+1], 44, 15);
+    
+    i = 11;
+    md4H(a[i], b[i  ], c[i  ], d[i  ], M[ 3], a[i+1], 45, 3);
+    md4H(d[i], a[i+1], b[i  ], c[i  ], M[11], d[i+1], 46, 9);
+    md4H(c[i], d[i+1], a[i+1], b[i  ], M[ 7], c[i+1], 47, 11);
+    md4H(b[i], c[i+1], d[i+1], a[i+1], M[15], b[i+1], 48, 15);
     
 }
 
@@ -475,7 +547,68 @@ Solver :: ~Solver () {
 }
 
 
+Word * Solver :: get_op_word (std::string name) {
+    std::list <Word *> :: iterator it;
+    for (it = this->op_words.begin(); it != this->op_words.end(); it++) {
+        if ((*it)->g_name() == name)
+            return *it;
+    }
+    return NULL;
+}
+
+
+void Solver :: solve () {
+    int highest_bit_count = 0;
+    int bc;
+    int i;
+    for (i = 0; i < 2; i++) {
+        initialize_values();
+        find_best_Ms();
+        execute();
+        bc = 0;
+        /*
+        for (j = 0; j < 16; j++) {
+            bc += M[j]->mask_count();
+        }
+        if (bc > 32 * 12) {
+            output_state();
+            std::cout << "FOUND M\n";
+        }
+        */
+        if (bit_count() > highest_bit_count) {
+            highest_bit_count = bit_count();
+            output_state();
+        }
+        std::cout.flush();
+    }
+}
+
+
+Solver Solver :: operator= (const Solver & s) {
+    int i;
+
+    if (this == &s)
+        return *this;
+        
+    for (i = 0; i < 16; i++) {
+        *(this->M[i]) = *(s.M[i]);
+    }
+    
+    for (i = 0; i < 13; i++) {
+        *(this->a[i]) = *(s.a[i]);
+        *(this->b[i]) = *(s.b[i]);
+        *(this->c[i]) = *(s.c[i]);
+        *(this->d[i]) = *(s.d[i]);
+    }
+    
+    return *this;
+    
+}
+
+
 int main () {
+    srand(time(NULL));
     Solver solver;
+    solver.solve();
     return 0;
 }
