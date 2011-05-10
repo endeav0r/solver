@@ -15,6 +15,8 @@ bool Or :: execute () {
     std::list <Word *> :: iterator it;
     std::list <Word *> :: iterator it2;
 
+	std::cout << "C\n";
+
     /**
     *** SOLVE FOR BITS IN R BASED OFF BITS IN A AND B
     *** if the bit is set in any operand, it will be set in r
@@ -31,6 +33,8 @@ bool Or :: execute () {
     this->result->take_bits(Word(word, word));
     if (mask != this->result->g_mask())
         changed = true;
+        
+        std::cout << "A\n";
 
     /**
     *** SOLVE FOR BITS IN R BASED OFF BITS IN A AND B
@@ -48,6 +52,8 @@ bool Or :: execute () {
     this->result->take_bits(tmp);
     if (mask != this->result->g_mask())
         changed = true;
+        
+	std::cout << "B\n";
     
     /**
     *** SOLVE FOR BITS IN OPERAND
@@ -59,16 +65,21 @@ bool Or :: execute () {
             if ((*it) != (*it2))
                 tmp |= *(*it2);
         }
-        // for all bits that are 0 in the other operands, this operand takes all
-        // the bits from the result
-        tmp = ~tmp;
-        tmp &= *(this->result);
+        // we want the bits that are 0 in all other operands to become the
+        // mask for this operand
+        tmp.s_mask(~(tmp.g_word()) & tmp.g_mask());
+        tmp.s_word(0x00000000);
+        // these bits will come directly from the result
+        tmp |= *(this->result);
+        
         // all of the 1s in tmp are going to be 0 in this operand
         mask = (*it)->g_mask();
         (*it)->take_bits(tmp);
         if (mask != (*it)->g_mask())
             changed = true;
     }
+    
+    std::cout << "D\n";
     
     return changed;
 }
