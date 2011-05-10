@@ -15,8 +15,6 @@ bool Or :: execute () {
     std::list <Word *> :: iterator it;
     std::list <Word *> :: iterator it2;
 
-	std::cout << "C\n";
-
     /**
     *** SOLVE FOR BITS IN R BASED OFF BITS IN A AND B
     *** if the bit is set in any operand, it will be set in r
@@ -33,8 +31,6 @@ bool Or :: execute () {
     this->result->take_bits(Word(word, word));
     if (mask != this->result->g_mask())
         changed = true;
-        
-        std::cout << "A\n";
 
     /**
     *** SOLVE FOR BITS IN R BASED OFF BITS IN A AND B
@@ -52,9 +48,7 @@ bool Or :: execute () {
     this->result->take_bits(tmp);
     if (mask != this->result->g_mask())
         changed = true;
-        
-	std::cout << "B\n";
-    
+
     /**
     *** SOLVE FOR BITS IN OPERAND
     **/
@@ -78,8 +72,6 @@ bool Or :: execute () {
         if (mask != (*it)->g_mask())
             changed = true;
     }
-    
-    std::cout << "D\n";
     
     return changed;
 }
